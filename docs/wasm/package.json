@@ -1,0 +1,15 @@
+{
+  "name": "rustboyadvance-wasm",
+  "collaborators": [
+    "Michel Heily <michelheily@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "gba_bg.wasm",
+    "gba.js",
+    "gba.d.ts"
+  ],
+  "module": "gba.js",
+  "types": "gba.d.ts",
+  "sideEffects": false
+}

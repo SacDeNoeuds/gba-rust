@@ -1,0 +1,131 @@
+<!-- Created with wasm-pack :) -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="/icon.png">
+    <meta name="application-name">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#fff">
+    <title>RustBoyAdvance</title>
+    <style>
+        body {
+            background-color: #2c2946;
+            font-family: Source Code, Roboto, Monospace;
+            margin: 0;
+            color: azure;
+        }
+        header {
+            padding: 1em;
+            padding-top: 6em;
+            background-color: #13121d;
+            background-image: url("icon.png");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 400px;
+            display: flex;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0.1px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        header h1 {
+            color: azure;
+            padding: .1em;
+            font-size: medium;
+        }
+        #menu {
+            padding: .1em;
+        }
+        #menu ul {
+            list-style: none;
+        }
+        #menu li {
+            margin: 0.2em;
+        }
+        #playarea {
+            justify-content: center;
+            margin: auto;
+            display: flexbox;
+        }
+        #playarea.hover {
+            border: rgba(9, 250, 0, 0.671);
+            border-style: dashed;
+            border-width: 0.1em;
+        }
+
+        #game-options {
+            display: block;
+        }
+        #game-options > * {
+            width: 100%;
+            margin: 0.2em;
+        }
+        #screen {
+            display: block;
+            max-width: 960px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: black;
+            image-rendering: optimizeSpeed;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            box-shadow: 0.1px 2px 4px rgba(0, 0, 0, 0.7);
+            padding: 0.2em;
+        }
+
+        #screen.hover {
+            border: rgba(9, 250, 0, 0.671);
+            border-style: dashed;
+            border-width: 0.1em;
+        }
+    </style>
+</head>
+
+<body>
+    <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+    <header>
+        <div id="logo">
+            <h1>RustBoyAdvance</h1>
+        </div>
+    </header>
+    <section id="menu">
+        <ul>
+            <li class="fileInput">
+                <label> BIOS </label>
+                <input type="file" id="bios-file-input" />
+            </li>
+            <li><button id="reloadBios" class="hidden">Reload Bios</button></li>
+            <li class="fileInput">
+                <label> ROM </label>
+                <input type="file" id="rom-file-input" />
+            </li>
+            <li><button id="startEmulator">Start</button></li>
+            <li><button id="fps-test">FPS Test</button></li>
+            <li>
+                <label>Skip Bios</label>
+                <input type="checkbox" id="skipBios">
+            </li>
+            <pre> You can also drag rom files directly into the screen </pre>
+        </ul>
+    </section>
+    <section id="playarea">
+        <pre> Built with WASM</pre>
+        <canvas id="screen" width="240px" , height="160px"></canvas>
+        <section id="game-options">
+            <span id="fps">FPS</span>
+            <label>
+                <label>Max FPS</label>
+                <input type="checkbox" id="maxFps">
+            </label>
+        </section>
+    </section>
+    <footer></footer>
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>

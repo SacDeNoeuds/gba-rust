@@ -1,0 +1,318 @@
+<!-- Created with wasm-pack :) -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="/icon.png">
+    <meta name="application-name">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#fff">
+    <title>RustBoyAdvance</title>
+    <style>
+        :root {
+            --white: #f0ffff;
+            --black: #13121d;
+            --grey: #5f5f5d;
+            --blue: #675ea7;
+            
+            --radius: 0.25rem;
+            --textColor: var(--white);
+            --bgColor: var(--blue);
+
+            --padBgColor: var(--black);
+            --padBgAltColor: var(--grey);
+            --padTextColor: var(--white);
+
+            --spaceXs: 0.125rem;
+            --spaceS: 0.25rem;
+            --spaceM: 0.5rem;
+            --spaceXl: 1.25rem;
+
+            --arrowSize: 2.75rem;
+            --arrowThickness: 2rem;
+            --padSize: calc(var(--arrowSize) * 2 + var(--arrowThickness));
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            border: none;
+            border-radius: 0;
+            color: unset;
+            background: unset;
+            font-size: 1rem; 
+            line-height: 1;
+        }
+        body {
+            background: var(--grey);
+            font-family: Source Code, Roboto, Monospace;
+            color: var(--textColor);
+            max-width: 100vw;
+            overflow-x: hidden;
+            overflow-y: visible;
+            /* Disable mobile browser status bar */
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+        }
+        input {
+            display: inline-block;
+            max-width: 100%;
+        }
+        label { display: block; }
+        hr { height: 2px; background: currentColor; }
+        .vspacer-s > * + * { margin-top: var(--spaceS); }
+        [hidden] { display: none !important; }
+        :disabled, [disabled] { opacity: 0.6; }
+        .vspacer-m > * + * { margin-top: var(--spaceM); }
+        #screen {
+            display: block;
+            width: 100%;
+            border-radius: var(--radius);
+            background-color: black;
+            image-rendering: optimizeSpeed;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            box-shadow: 0.1px 2px 4px rgba(0, 0, 0, 0.7);
+            padding: 0.2em;
+        }
+        .gba {
+            position: relative;
+            padding: 0 var(--spaceM);
+            padding-bottom: var(--spaceXl);
+            margin-top: var(--spaceXl);
+            background: var(--bgColor);
+            border-radius: var(--radius);
+            max-width: 600px;
+            width: 95%;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0.1px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        .screen-container {
+            position: relative;
+        }
+        .menu-button {
+            padding: 0 var(--spaceM);
+            font-size: 1.5rem;
+        }
+        .dialog {
+            z-index: 50;
+            position: fixed;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dialog, .backdrop {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .backdrop {
+            z-index: 5;
+            background: var(--black);
+            opacity: 0.6;
+            position: absolute;
+        }
+        .dialog-content {
+            position: relative;
+            border-radius: var(--radius);
+            z-index: 10;
+            max-width: 80%;
+            background: var(--white);
+            color: var(--black);
+            padding: var(--spaceS) var(--spaceXl);
+            max-height: 75vh;
+            overflow: auto;
+        }
+
+        .controls {
+            display: flex;
+            padding: var(--spaceXl) var(--spaceM);
+        }
+        .left-controls, .right-controls { flex: 1; padding: 0 var(--spaceM); }
+        .top-controls { display: flex; }
+        .top-controls * + * { margin-left: var(--spaceXl); }
+        .bottom-controls { display: flex; padding-top: calc(var(--spaceXl) * 2); }
+        .right-controls .top-controls, .left-controls .bottom-controls { justify-content: flex-end; }
+        .middle-controls { padding: calc(var(--spaceXl) * 3) var(--spaceM); }
+
+        .button {
+            display: inline-block;
+            padding: var(--spaceS) var(--spaceM);
+            border: 2px solid var(--black);
+            background: var(--white);
+            color: var(--black);
+            border-radius: var(--radius);
+            font-weight: bold;
+        }
+        .button.round { border-radius: 1.5rem; }
+        .button:focus { border-style: dashed; }
+        .button.pad {
+            background: var(--padBgColor);
+            color: var(--padTextColor);
+            border: none;
+        }
+        .button.pad.pressed { background: var(--padBgAltColor); }
+        .pad-controls, .a-b-controls {
+            height: var(--padSize);
+            min-height: var(--padSize);
+            max-height: var(--padSize);
+            position: relative;
+            overflow: hidden;
+        }
+        .pad-controls {
+            --size: var(--arrowSize);
+            --thickness: var(--arrowThickness);
+            display: inline-block;
+            height: var(--padSize);
+            width: var(--padSize);
+            text-align: center;
+        }
+        .pad { user-select: none; }
+        .pad-controls .pad { height: var(--thickness); width: var(--thickness); position: absolute; }
+        .arrow.up, .arrow.down { height: var(--size); left: calc(50% - var(--thickness) / 2); }
+        .arrow.left, .arrow.right { width: var(--size); top: calc(50% - var(--thickness) / 2); }
+        .arrow.up { top: 0; }
+        .arrow.down { bottom: 0; }
+        .arrow.left { left: 0; }
+        .arrow.right { right: 0; }
+        .arrow.noop { top: calc(50% - var(--thickness) / 2); left: calc(50% - var(--thickness) / 2); }
+
+        .a-b-controls .button.pad {
+            font-size: 1rem;
+            padding: 0.8rem 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+    <div class="gba">
+        <div style="padding: var(--spaceS) var(--spaceM); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <button class="button" onclick="window.showDialog(true)">☰ Menu</button>
+            </div>
+    
+            <label>
+                Turbo
+                <input type="checkbox" id="turbo">
+            </label>
+        </div>
+        <div class="screen-container">
+            <div class="dialog">
+                <div class="backdrop" onclick="window.showDialog(false)"></div>
+                <div class="dialog-content vspacer-m">
+                    <section class="vspacer-s">
+                        <h4>ROMs</h4>
+                        <label>
+                            Import a ROM
+                            <input type="file" id="rom-input">
+                        </label>
+                    </section>
+                    <hr>
+                    <section class="vspacer-s">
+                        <h4>Pre-installed ROMs</h4>
+                        <button class="button" data-rom="./assets/Pokemon Fire Red.gba">Pokemon Fire Red</button>
+                    </section>
+                    <hr>
+                    <section class="vspacer-s">
+                        <h4>Save</h4>
+                        <label>
+                            Import save file
+                            <input type="file" accept=".sav" onchange="window.importSave(event.target.files[0])">
+                        </label>
+                        <button class="button" onclick="window.exportSave()">Export</button>
+                    </section>
+                    <hr>
+                    <section class="vspacer-s">
+                        <h4>Bindings</h4>
+                        <p>Tip: Press the button, then press the desired bound key.</p>
+                        <label>A <button class="button" data-bindkey="A">Z</button></label>
+                        <label>B <button class="button" data-bindkey="B">X</button></label>
+                        <label>L <button class="button" data-bindkey="L">A</button></label>
+                        <label>R <button class="button" data-bindkey="R">S</button></label>
+                        <label>Start <button class="button" data-bindkey="Start">Enter</button></label>
+                        <label>Select <button class="button" data-bindkey="Select">Backspace</button></label>
+                        <label>Up <button class="button" data-bindkey="Up">ArrowUp</button></label>
+                        <label>Left <button class="button" data-bindkey="Left">ArrowLeft</button></label>
+                        <label>Right <button class="button" data-bindkey="Right">ArrowRight</button></label>
+                        <label>Down <button class="button" data-bindkey="Down">ArrowDown</button></label>
+                    </section>
+                    <hr>
+                    <footer>
+                        <button class="button" onclick="window.showDialog(false)">Close</button>
+                    </footer>
+                </div>
+            </div>
+            <div id="feedback" class="feedback"></div>
+
+            <canvas id="screen" class="screen-target" width="240px" height="160px"></canvas>
+        </div>
+
+        <div class="controls">
+            <div class="left-controls">
+                <div class="top-controls">
+                    <button class="button" data-controlkey="L">L</button>
+                    <button class="button" id="restore" onclick="window.restoreFromApi()" disabled>Restore</button>
+                </div>
+    
+                <div class="middle-controls" style="text-align: left">
+                    <div class="pad-controls">
+                        <button class="button arrow up pad" data-controlkey="Up"></button>
+                        <button class="button arrow left pad" data-controlkey="Left"></button>
+                        <div class="button pad arrow noop"></div>
+                        <button class="button arrow right pad" data-controlkey="Right"></button>
+                        <button class="button arrow down pad" data-controlkey="Down"></button>
+                    </div>
+                </div>
+    
+                <div class="bottom-controls">
+                    <label style="text-align: center;">
+                        <button class="button pad" style="width: 5rem;" data-controlkey="Select">&nbsp;</button>
+                        <br><br>Select<br>
+                        (<span id="binding-for-Select">Backspace</span>)
+                    </label>
+                </div>
+            </div>
+            
+            <div class="right-controls">
+                <div class="top-controls">
+                    <button class="button" id="save" onclick="window.saveToApi()" disabled>Save</button>
+                    <button class="button" data-controlkey="R">R</button>
+                </div>
+    
+                <div class="middle-controls" style="text-align: right;">
+                    <div class="a-b-controls" style="min-width: var(--padSize);">
+                        <div style="margin-bottom: 1rem; text-align: right;">
+                            <button class="button pad round" data-controlkey="A">A</button>
+                             (<span id="binding-for-A">Z</span>)
+                        </div>
+                        <div style="text-align: center">
+                            <button class="button pad round" data-controlkey="B">B</button>
+                             (<span id="binding-for-B">X</span>)
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="bottom-controls" style="text-align: center;">
+                    <label>
+                        <button class="button pad" style="width: 5rem;" data-controlkey="Start">&nbsp;</button>
+                        <br><br>Start<br>
+                        (<span id="binding-for-Start">Enter</span>)
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>

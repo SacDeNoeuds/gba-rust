@@ -1,0 +1,17 @@
+[workspace]
+members = [
+    "core",
+    "platform/rustboyadvance-sdl2",
+    "platform/rustboyadvance-libretro",
+    "platform/rustboyadvance-minifb",
+    "platform/rustboyadvance-wasm",
+    "bindings/rustboyadvance-jni",
+    "fps_bench"
+]
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+debug = true

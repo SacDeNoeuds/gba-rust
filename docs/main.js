@@ -257,19 +257,24 @@ function restoreFromApi() {
     if (cachedSave) return startEmulatorFromState(new Uint8Array(cachedSave))
     if (!apiUrl || !cachedRom) return
     const romTitle = wasm.parse_rom_header(cachedRom).get_game_title()
+    disableSaveButtonsIf(true);
     fetch(`${apiUrl}/${romTitle}`, {
         method: 'GET',
         mode: 'cors',
     })
     .then((response) => {
-        if (response.ok) return response.arrayBuffer()
-        throw new Error('Restoring failed')
+        if (!response.ok) throw new Error('Restoring failed')
+        return response.arrayBuffer()
     })
     .then((buffer) => {
         const state = new Uint8Array(buffer)
         startEmulatorFromState(state)
+        disableSaveButtonsIf(false);
     })
-    .catch(() => window.alert('Failed to restore state'))
+    .catch(() => {
+        window.alert('Failed to restore state')
+        disableSaveButtonsIf(false);
+    })
 }
 
 function saveToApi(state = getSaveState()) {
@@ -284,7 +289,8 @@ function saveToApi(state = getSaveState()) {
         headers: { 'Content-Type': 'application/octet-stream' },
         mode: 'cors',
     }).then((response) => {
-        window.alert(response.ok ? 'Good: Remote save done' : 'Fail: Remote save failed, cached save worked')
+        if (!response.ok) throw new Error('failed');
+        window.alert('Good: Remote save done');
         disableSaveButtonsIf(false);
     }).catch(() => {
         window.alert('Remote save failed, cached save worked')

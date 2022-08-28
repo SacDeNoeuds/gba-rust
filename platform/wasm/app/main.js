@@ -277,15 +277,18 @@ function saveToApi(state = getSaveState()) {
     cachedSave = new Uint8Array(state)
     if (!apiUrl || !cachedRom) return
     const romTitle = wasm.parse_rom_header(cachedRom).get_game_title()
+    disableSaveButtonsIf(true);
     fetch(`${apiUrl}/${romTitle}`, {
         method: 'PUT',
         body: state,
         headers: { 'Content-Type': 'application/octet-stream' },
         mode: 'cors',
     }).then((response) => {
-        if (!response.ok) window.alert('Remote save failed, cached save worked')
+        window.alert(response.ok ? 'Good: Remote save done' : 'Fail: Remote save failed, cached save worked')
+        disableSaveButtonsIf(false);
     }).catch(() => {
         window.alert('Remote save failed, cached save worked')
+        disableSaveButtonsIf(false);
     })
 }
 

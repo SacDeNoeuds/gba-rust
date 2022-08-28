@@ -89,9 +89,7 @@ pads.forEach((pad) => {
     const handleKeyDown = handleKey({ control: pad, handler: keyDown, add: 'pressed' })
     const handleKeyUp = handleKey({ control: pad, handler: keyUp, remove: 'pressed' })
 
-    pad.addEventListener('mouseenter', () => handleKeyDown({ checkPressed: false }), false);
-    pad.addEventListener('mouseleave', () => handleKeyUp({ checkPressed: false }), false);
-
+    
     pad.addEventListener('touchstart', () => onTouchPad(pad), false);
     pad.addEventListener('touchend', onUntouchPad, false);
     pad.addEventListener('touchmove', (event) => {
@@ -106,7 +104,12 @@ pads.forEach((pad) => {
         // If touch target changes and is another pad, trigger "key up" of left pad and trigger "key down" of newly pressed pad.
         if (pads.includes(touched)) onTouchPad(touched);
         else onUntouchPad();
-    }, false)
+    }, false);
+
+    pad.addEventListener('click', () => {
+        handleKeyDown();
+        handleKeyUp();
+    }, false);
 })
 
 bindings.forEach((element) => {
